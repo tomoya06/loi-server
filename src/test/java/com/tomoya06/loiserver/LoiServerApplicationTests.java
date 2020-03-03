@@ -1,0 +1,13 @@
+package com.tomoya06.loiserver;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class LoiServerApplicationTests {
+
+  @Test
+  void contextLoads() {
+  }
+
+}
