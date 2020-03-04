@@ -1,14 +1,16 @@
 package com.tomoya06.loiserver.service;
 
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import com.tomoya06.loiserver.model.DO.LoiLangDocument;
 import com.tomoya06.loiserver.model.DO.LoiLangDocument.LangType;
-import com.tomoya06.loiserver.model.DO.LoiLangDocument.PinyinDocument;
 import com.tomoya06.loiserver.model.repo.LoiLangRepository;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,25 +27,57 @@ public class LoiLangService {
     return loiLangRepository.getWord(word);
   }
 
-  public void create(String word, String prefix, String suffix, LangType type) throws InstanceAlreadyExistsException {
+  public LoiLangDocument create(String word, String pinyin, LangType type)
+      throws InstanceAlreadyExistsException {
     if (loiLangRepository.isWordExists(word)) {
       throw new InstanceAlreadyExistsException();
     }
 
+    pinyin = pinyin.toLowerCase();
     LoiLangDocument loiLangDocument = new LoiLangDocument();
     loiLangDocument.setWord(word);
-
-    prefix = prefix.toLowerCase();
-    suffix = suffix.toLowerCase();
-    PinyinDocument pinyinDocument = new PinyinDocument();
-    pinyinDocument.setPrefix(prefix);
-    pinyinDocument.setSuffix(suffix);
-    pinyinDocument.setPinyin(prefix + suffix);
-    var pinyins = new ArrayList<PinyinDocument>();
-    pinyins.add(pinyinDocument);
-    loiLangDocument.setPinyins(pinyins);
+    loiLangDocument.setPinyins(Collections.singletonList(pinyin));
     loiLangDocument.setType(type);
 
-    loiLangRepository.createWord(loiLangDocument);
+    return loiLangRepository.createWord(loiLangDocument);
+  }
+
+  public UpdateResult addMultiPron(String word, String pinyin)
+      throws NullPointerException, InstanceAlreadyExistsException {
+    var wordDoc = loiLangRepository.getWord(word);
+
+    if (wordDoc == null) {
+      throw new NullPointerException();
+    }
+
+    pinyin = pinyin.toLowerCase();
+    if (wordDoc.getPinyins().contains(pinyin)) {
+      throw new InstanceAlreadyExistsException();
+    }
+
+    Update update = new Update();
+    update.addToSet("pinyins", pinyin);
+
+    return loiLangRepository.updateWord(word, update);
+  }
+
+  public UpdateResult deletePinyin(String word, String oldPinyin) {
+    var wordDoc = loiLangRepository.getWord(word);
+    oldPinyin = oldPinyin.toLowerCase();
+
+    if (wordDoc == null || !wordDoc.getPinyins().contains(oldPinyin)) {
+      throw new NullPointerException();
+    }
+
+    Update update = new Update();
+    update.pull("pinyins", oldPinyin);
+    return loiLangRepository.updateWord(word, update);
+  }
+
+  public DeleteResult deleteWord(String word) {
+    if (!loiLangRepository.isWordExists(word)) {
+      throw new NullPointerException();
+    }
+    return loiLangRepository.removeWord(word);
   }
 }

@@ -12,20 +12,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 public class LoiLangDocument {
 
-  @Data
-  @NoArgsConstructor
-  public static class PinyinDocument {
-    private String prefix;
-    private String suffix;
-    private String pinyin;
-  }
-
   public enum LangType {
     /**
      *
      */
     NORMAL,
-    MULTI_PRON,
     SLANG,
     ORAL
   }
@@ -37,7 +28,7 @@ public class LoiLangDocument {
   private String word;
 
   @Field("pinyins")
-  private List<PinyinDocument> pinyins;
+  private List<String> pinyins;
 
   @Field("type")
   private LangType type;
