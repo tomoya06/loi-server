@@ -1,0 +1,270 @@
+{
+	"prefixes" : [
+		{
+			"prefix" : "b",
+			"eg" : "波"
+		},
+		{
+			"prefix" : "p",
+			"eg" : "坡"
+		},
+		{
+			"prefix" : "m",
+			"eg" : "毛"
+		},
+		{
+			"prefix" : "bh",
+			"eg" : "不"
+		},
+		{
+			"prefix" : "d",
+			"eg" : "刀"
+		},
+		{
+			"prefix" : "t",
+			"eg" : "汤"
+		},
+		{
+			"prefix" : "n",
+			"eg" : "挪"
+		},
+		{
+			"prefix" : "l",
+			"eg" : "罗"
+		},
+		{
+			"prefix" : "g",
+			"eg" : "哥"
+		},
+		{
+			"prefix" : "k",
+			"eg" : "科"
+		},
+		{
+			"prefix" : "ng",
+			"eg" : "鹅"
+		},
+		{
+			"prefix" : "h",
+			"eg" : "和"
+		},
+		{
+			"prefix" : "j",
+			"eg" : "接"
+		},
+		{
+			"prefix" : "q",
+			"eg" : "妻"
+		},
+		{
+			"prefix" : "x",
+			"eg" : "市"
+		},
+		{
+			"prefix" : "y",
+			"eg" : "移"
+		},
+		{
+			"prefix" : "z",
+			"eg" : "朱"
+		},
+		{
+			"prefix" : "c",
+			"eg" : "粗"
+		},
+		{
+			"prefix" : "s",
+			"eg" : "思"
+		}
+	],
+	"suffixes" : [
+		{
+			"suffix" : "a",
+			"eg" : "啊"
+		},
+		{
+			"suffix" : "o",
+			"eg" : "哦"
+		},
+		{
+			"suffix" : "e",
+			"eg" : "哑"
+		},
+		{
+			"suffix" : "ai",
+			"eg" : "唉"
+		},
+		{
+			"suffix" : "ao",
+			"eg" : "澳"
+		},
+		{
+			"suffix" : "eu",
+			"eg" : "呕"
+		},
+		{
+			"suffix" : "oi",
+			"eg" : "矮"
+		},
+		{
+			"suffix" : "am",
+			"eg" : "暗"
+		},
+		{
+			"suffix" : "em",
+			"eg" : "掩"
+		},
+		{
+			"suffix" : "ang",
+			"eg" : "安"
+		},
+		{
+			"suffix" : "eng",
+			"eg" : "哼"
+		},
+		{
+			"suffix" : "ong",
+			"eg" : "翁"
+		},
+		{
+			"suffix" : "ab",
+			"eg" : "合"
+		},
+		{
+			"suffix" : "eb",
+			"eg" : "摄"
+		},
+		{
+			"suffix" : "ag",
+			"eg" : "压"
+		},
+		{
+			"suffix" : "eg",
+			"eg" : "遏"
+		},
+		{
+			"suffix" : "og",
+			"eg" : "恶"
+		},
+		{
+			"suffix" : "i",
+			"eg" : "伊"
+		},
+		{
+			"suffix" : "ia",
+			"eg" : "呀"
+		},
+		{
+			"suffix" : "io",
+			"eg" : "哟"
+		},
+		{
+			"suffix" : "ie",
+			"eg" : "爷"
+		},
+		{
+			"suffix" : "iao",
+			"eg" : "妖"
+		},
+		{
+			"suffix" : "iu",
+			"eg" : "友"
+		},
+		{
+			"suffix" : "iam",
+			"eg" : "阉"
+		},
+		{
+			"suffix" : "im",
+			"eg" : "音"
+		},
+		{
+			"suffix" : "iang",
+			"eg" : "央"
+		},
+		{
+			"suffix" : "ieng",
+			"eg" : "因"
+		},
+		{
+			"suffix" : "iong",
+			"eg" : "用"
+		},
+		{
+			"suffix" : "ing",
+			"eg" : "英"
+		},
+		{
+			"suffix" : "iab",
+			"eg" : "碟"
+		},
+		{
+			"suffix" : "ib",
+			"eg" : "邑"
+		},
+		{
+			"suffix" : "iag",
+			"eg" : "烛"
+		},
+		{
+			"suffix" : "ieg",
+			"eg" : "一"
+		},
+		{
+			"suffix" : "ig",
+			"eg" : "益"
+		},
+		{
+			"suffix" : "iog",
+			"eg" : "约"
+		},
+		{
+			"suffix" : "u",
+			"eg" : "污"
+		},
+		{
+			"suffix" : "ua",
+			"eg" : "哇"
+		},
+		{
+			"suffix" : "ue",
+			"eg" : "话"
+		},
+		{
+			"suffix" : "uai",
+			"eg" : "喂"
+		},
+		{
+			"suffix" : "ui",
+			"eg" : "威"
+		},
+		{
+			"suffix" : "uang",
+			"eg" : "汪"
+		},
+		{
+			"suffix" : "ung",
+			"eg" : "温"
+		},
+		{
+			"suffix" : "uag",
+			"eg" : "括"
+		},
+		{
+			"suffix" : "ueg",
+			"eg" : "国"
+		},
+		{
+			"suffix" : "ug",
+			"eg" : "郁"
+		},
+		{
+			"suffix" : "m",
+			"eg" : "唔"
+		},
+		{
+			"suffix" : "ng",
+			"eg" : "嗯"
+		}
+	]
+}
