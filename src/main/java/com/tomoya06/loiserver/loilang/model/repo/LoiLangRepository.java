@@ -1,8 +1,8 @@
-package com.tomoya06.loiserver.model.repo;
+package com.tomoya06.loiserver.loilang.model.repo;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import com.tomoya06.loiserver.model.DO.LoiLangDocument;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.var;

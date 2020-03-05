@@ -1,10 +1,10 @@
-package com.tomoya06.loiserver.service;
+package com.tomoya06.loiserver.loilang.service;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import com.tomoya06.loiserver.model.DO.LoiLangDocument;
-import com.tomoya06.loiserver.model.DO.LoiLangDocument.LangType;
-import com.tomoya06.loiserver.model.repo.LoiLangRepository;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
+import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
 import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;

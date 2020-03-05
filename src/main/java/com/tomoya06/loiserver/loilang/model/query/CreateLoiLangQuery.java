@@ -1,7 +1,6 @@
-package com.tomoya06.loiserver.model.query;
+package com.tomoya06.loiserver.loilang.model.query;
 
-import com.tomoya06.loiserver.model.DO.LoiLangDocument.LangType;
-import java.util.stream.Stream;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

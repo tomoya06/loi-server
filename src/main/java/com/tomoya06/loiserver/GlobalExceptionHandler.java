@@ -1,6 +1,6 @@
 package com.tomoya06.loiserver;
 
-import com.tomoya06.loiserver.model.DTO.FailureResponse;
+import com.tomoya06.loiserver.loilang.model.DTO.FailureResponse;
 import java.security.InvalidParameterException;
 import javax.management.InstanceAlreadyExistsException;
 import javax.servlet.http.HttpServletRequest;

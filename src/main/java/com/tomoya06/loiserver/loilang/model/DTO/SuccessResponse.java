@@ -1,4 +1,4 @@
-package com.tomoya06.loiserver.model.DTO;
+package com.tomoya06.loiserver.loilang.model.DTO;
 
 import org.springframework.http.HttpStatus;
 

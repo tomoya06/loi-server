@@ -1,4 +1,4 @@
-package com.tomoya06.loiserver.model.DO;
+package com.tomoya06.loiserver.loilang.model.DO;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

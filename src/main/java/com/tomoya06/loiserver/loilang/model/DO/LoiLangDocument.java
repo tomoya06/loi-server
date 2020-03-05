@@ -1,4 +1,4 @@
-package com.tomoya06.loiserver.model.DO;
+package com.tomoya06.loiserver.loilang.model.DO;
 
 import java.util.List;
 import lombok.Data;

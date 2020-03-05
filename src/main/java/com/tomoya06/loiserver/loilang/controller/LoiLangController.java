@@ -1,10 +1,10 @@
-package com.tomoya06.loiserver.controller;
+package com.tomoya06.loiserver.loilang.controller;
 
-import com.tomoya06.loiserver.model.DTO.SuccessResponse;
-import com.tomoya06.loiserver.model.query.AddPronQuery;
-import com.tomoya06.loiserver.model.query.CreateLoiLangQuery;
-import com.tomoya06.loiserver.model.query.RemoveWordQuery;
-import com.tomoya06.loiserver.service.LoiLangService;
+import com.tomoya06.loiserver.loilang.model.DTO.SuccessResponse;
+import com.tomoya06.loiserver.loilang.model.query.AddPronQuery;
+import com.tomoya06.loiserver.loilang.model.query.CreateLoiLangQuery;
+import com.tomoya06.loiserver.loilang.model.query.RemoveWordQuery;
+import com.tomoya06.loiserver.loilang.service.LoiLangService;
 import java.security.InvalidParameterException;
 import javax.management.InstanceAlreadyExistsException;
 import lombok.var;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
