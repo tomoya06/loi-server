@@ -1,4 +1,4 @@
-package com.tomoya06.loiserver.wechat.model.query;
+package com.tomoya06.loiserver.wechat.model.DTO;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

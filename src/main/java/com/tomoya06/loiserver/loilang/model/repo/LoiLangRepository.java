@@ -19,6 +19,11 @@ public class LoiLangRepository {
   @Autowired
   private MongoTemplate mongoTemplate;
 
+  public Long totalCount() {
+    Query query = Query.query(Criteria.where("id").exists(true));
+    return mongoTemplate.count(query, LoiLangDocument.class);
+  }
+
   public List<LoiLangDocument> searchWord(String word) {
     Pattern pattern = Pattern.compile("^" + Pattern.quote(word), Pattern.CASE_INSENSITIVE);
     Query query = Query.query(Criteria.where("word").regex(pattern));

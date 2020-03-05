@@ -19,6 +19,10 @@ public class LoiLangService {
   @Autowired
   private LoiLangRepository loiLangRepository;
 
+  public Long totalCount() {
+    return loiLangRepository.totalCount();
+  }
+
   public List<LoiLangDocument> search(String word) {
     return loiLangRepository.searchWord(word);
   }
