@@ -25,7 +25,6 @@ public class WechatMsgService {
     OutMsgEntity out = null;
     if (Constant.MSG_TYPE_TEXT.equals(msgType)) {
       if (content.startsWith(LoiLangMsgCmd.PREFIX)) {
-        // -- 黎话字典指令处理
         if (content.equals(LoiLangMsgCmd.PREFIX)) {
           out = wechatMsgLoilangService.handleCmdInfo();
         } else {

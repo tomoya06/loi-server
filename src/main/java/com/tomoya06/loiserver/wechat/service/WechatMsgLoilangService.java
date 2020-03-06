@@ -29,8 +29,11 @@ public class WechatMsgLoilangService {
   @Autowired
   private LoiLangService loiLangService;
 
-  @Value("${loilang.status}")
+  @Value("${wechat.bot.loilang.status}")
   private String loiLangStatus;
+
+  @Value("${wechat.bot.loilang.title}")
+  private String botTitle;
 
   public OutMsgEntity handler(LoiLangMsgCmd msgCmd) {
     if (msgCmd == null) {
@@ -82,7 +85,7 @@ public class WechatMsgLoilangService {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
 
-    String content = "黎话字典bot"
+    String content = botTitle + "bot"
         + "\n当前状态：" + loiLangStatus
         + "\n目前所有可用指令："
         + "\n“字典多厚”：查看字典概况"
@@ -111,9 +114,9 @@ public class WechatMsgLoilangService {
     String latestWord = result.getLatest().stream()
         .map(doc -> String.format("「%s」", doc.getWord()))
         .collect(Collectors.joining("，"));
-    String content = String.format("目前黎话字典总共收录了%d个词条。"
+    String content = String.format("目前%s总共收录了%d个词条。"
         + "\n最近加入的词条有："
-        + "\n%s", result.getTotal(), latestWord);
+        + "\n%s", botTitle, result.getTotal(), latestWord);
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     outMsgEntity.setContent(content);
     outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
