@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,6 +25,11 @@ public class LoiLangRepository {
   public Long totalCount() {
     Query query = Query.query(Criteria.where("id").exists(true));
     return mongoTemplate.count(query, LoiLangDocument.class);
+  }
+
+  public List<LoiLangDocument> getLatest(Integer size) {
+    Query query = new Query().with(PageRequest.of(0, size)).with(Sort.by(Direction.DESC, "_id"));
+    return mongoTemplate.find(query, LoiLangDocument.class);
   }
 
   public List<LoiLangDocument> searchWord(String word) {

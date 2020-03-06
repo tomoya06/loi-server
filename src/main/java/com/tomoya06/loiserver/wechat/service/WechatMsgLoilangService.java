@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 import javax.management.InstanceAlreadyExistsException;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +20,9 @@ public class WechatMsgLoilangService {
 
   @Autowired
   private LoiLangService loiLangService;
+
+  @Value("${loilang.status}")
+  private String loiLangStatus;
 
   public OutMsgEntity handler(LoiLangMsgCmd msgCmd) {
     if (msgCmd == null) {
@@ -65,14 +69,21 @@ public class WechatMsgLoilangService {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
 
-    String content = "黎话字典bot目前所有可用指令："
+    String content = "黎话字典bot"
+        + "\n当前状态：" + loiLangStatus
+        + "\n目前所有可用指令："
         + "\n“字典多厚”：查看字典概况"
         + "\n“字典查字 我”：搜索以“我”开头的词条"
         + "\n“字典看字 我”：查看“我”词条"
-        + "\n“字典加字 他 pinyin”：添加“他”字入典，配置其读音为“pinyin”"
-        + "\n“字典加音 他 pin”：给“他”字添加新读音，即多音字"
-        + "\n“字典删音 他 pin”：删除“他”字的“pin”读音"
-        + "\n“字典删字 他”：删除字典中的“他”字";
+        + "\n[TBD]“字典加字 他 pinyin”：添加“他”字入典，配置其读音为“pinyin”"
+        + "\n[TBD]“字典加音 他 pin”：给“他”字添加新读音，即多音字"
+        + "\n[TBD]“字典删音 他 pin”：删除“他”字的“pin”读音"
+        + "\n[BETA]“字典删字 他”：删除字典中的“他”字"
+        + "\n[NEY]“字典缺字 哈”：上报字典尚未录入的词条"
+        + "\n"
+        + "\n* [TBD]: Cmd may be deleted after beta test."
+        + "\n* [BETA]: Cmd only exists during beta test. "
+        + "\n* [NEY]: Cmd is not existing yet.  ";
     outMsgEntity.setContent(content);
     return outMsgEntity;
   }
@@ -83,8 +94,13 @@ public class WechatMsgLoilangService {
    * @return
    */
   private OutMsgEntity handleInfo() {
-    var result = loiLangService.totalCount();
-    String content = String.format("目前黎话字典总共收录了%d个词条", result);
+    var result = loiLangService.getGeneral();
+    String latestWord = result.getLatest().stream()
+        .map(doc -> String.format("「%s」", doc.getWord()))
+        .collect(Collectors.joining("，"));
+    String content = String.format("目前黎话字典总共收录了%d个词条。"
+        + "\n最近加入的词条有："
+        + "\n%s", result.getTotal(), latestWord);
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     outMsgEntity.setContent(content);
     outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);

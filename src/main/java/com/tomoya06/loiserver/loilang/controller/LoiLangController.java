@@ -25,6 +25,12 @@ public class LoiLangController {
   @Autowired
   private LoiLangService loiLangService;
 
+  @GetMapping("/general")
+  ResponseEntity<?> general() {
+    var result = loiLangService.getGeneral();
+    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
+  }
+
   @GetMapping("/search")
   ResponseEntity<?> search(@RequestParam String query) {
     var result = loiLangService.search(query);

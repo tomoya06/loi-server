@@ -4,6 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
+import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,15 @@ public class LoiLangService {
 
   public Long totalCount() {
     return loiLangRepository.totalCount();
+  }
+
+  public LoiLangGeneralResult getGeneral() {
+    LoiLangGeneralResult result = new LoiLangGeneralResult();
+    Long total = loiLangRepository.totalCount();
+    List<LoiLangDocument> list = loiLangRepository.getLatest(10);
+    result.setLatest(list);
+    result.setTotal(total);
+    return result;
   }
 
   public List<LoiLangDocument> search(String word) {
