@@ -6,6 +6,7 @@ import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
 import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
+import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
@@ -19,10 +20,6 @@ public class LoiLangService {
 
   @Autowired
   private LoiLangRepository loiLangRepository;
-
-  public Long totalCount() {
-    return loiLangRepository.totalCount();
-  }
 
   public LoiLangGeneralResult getGeneral() {
     LoiLangGeneralResult result = new LoiLangGeneralResult();
@@ -73,6 +70,21 @@ public class LoiLangService {
     update.addToSet("pinyins", pinyin);
 
     return loiLangRepository.updateWord(word, update);
+  }
+
+  public String deletePinyin(String word, Integer index) {
+    if (index < 0) {
+      throw new InvalidParameterException();
+    }
+    var wordDoc = loiLangRepository.getWord(word);
+    if (wordDoc == null || wordDoc.getPinyins().size() <= index) {
+      throw new NullPointerException();
+    }
+    String oldPinyin = wordDoc.getPinyins().get(index);
+    Update update = new Update();
+    update.pull("pinyins", oldPinyin);
+    loiLangRepository.updateWord(word, update);
+    return oldPinyin;
   }
 
   public UpdateResult deletePinyin(String word, String oldPinyin) {
