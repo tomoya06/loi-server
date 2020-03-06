@@ -15,7 +15,8 @@ public class LoiLangMsgCmd {
   private String arg0;
 
   private static final Integer ARG_COUNT = 2;
-  private static final String REGEXP = "^字典(查字|看字|加字|加音|删音|删字|多厚了)(\\s+[\\u4E00-\\u9FA5]+)?(\\s+\\w+)?\\s*$";
+  private static final String REGEXP = "^字典(查字|看字|加字|加音|删音|删字|多厚)(\\s+[\\u4E00-\\u9FA5]+)?(\\s+\\w+)?\\s*$";
+  public static final String PREFIX = "字典";
 
   public static LoiLangMsgCmd parse(String content) {
     Pattern pattern = Pattern.compile(REGEXP);

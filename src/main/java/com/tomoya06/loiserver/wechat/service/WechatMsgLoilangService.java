@@ -2,8 +2,10 @@ package com.tomoya06.loiserver.wechat.service;
 
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
 import com.tomoya06.loiserver.loilang.service.LoiLangService;
+import com.tomoya06.loiserver.wechat.common.Constant;
 import com.tomoya06.loiserver.wechat.model.DO.LoiLangMsgCmd;
 import com.tomoya06.loiserver.wechat.model.DTO.OutMsgEntity;
+import java.security.InvalidParameterException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.management.InstanceAlreadyExistsException;
@@ -22,24 +24,57 @@ public class WechatMsgLoilangService {
     if (msgCmd == null) {
       return null;
     }
-    switch (msgCmd.getTitle()) {
-      case "多厚了":
-        return handleInfo();
-      case "查字":
-        return handleSearchWord(msgCmd);
-      case "看字":
-        return handleShowWord(msgCmd);
-      case "加字":
-        return handleAddWord(msgCmd);
-      case "加音":
-        return handleAddPinyin(msgCmd);
-      case "删音":
-        return handleDeletePinyin(msgCmd);
-      case "删字":
-        return handleDeleteWord(msgCmd);
-      default:
-        return null;
+    try {
+      switch (msgCmd.getTitle()) {
+        case "多厚":
+          return handleInfo();
+        case "查字":
+          return handleSearchWord(msgCmd);
+        case "看字":
+          return handleShowWord(msgCmd);
+        case "加字":
+          return handleAddWord(msgCmd);
+        case "加音":
+          return handleAddPinyin(msgCmd);
+        case "删音":
+          return handleDeletePinyin(msgCmd);
+        case "删字":
+          return handleDeleteWord(msgCmd);
+        default:
+          return null;
+      }
+    } catch (InvalidParameterException e) {
+      OutMsgEntity outMsgEntity = new OutMsgEntity();
+      outMsgEntity.setContent(e.getMessage());
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+      return outMsgEntity;
+    } catch (InstanceAlreadyExistsException e) {
+      OutMsgEntity outMsgEntity = new OutMsgEntity();
+      outMsgEntity.setContent(e.getMessage());
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+      return outMsgEntity;
+    } catch (NullPointerException e) {
+      OutMsgEntity outMsgEntity = new OutMsgEntity();
+      outMsgEntity.setContent("这个字跑到别的字典了");
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+      return outMsgEntity;
     }
+  }
+
+  public OutMsgEntity handleCmdInfo() {
+    OutMsgEntity outMsgEntity = new OutMsgEntity();
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+
+    String content = "黎话字典bot目前所有可用指令："
+        + "\n“字典多厚”：查看字典概况"
+        + "\n“字典查字 我”：搜索以“我”开头的词条"
+        + "\n“字典看字 我”：查看“我”词条"
+        + "\n“字典加字 他 pinyin”：添加“他”字入典，配置其读音为“pinyin”"
+        + "\n“字典加音 他 pin”：给“他”字添加新读音，即多音字"
+        + "\n“字典删音 他 pin”：删除“他”字的“pin”读音"
+        + "\n“字典删字 他”：删除字典中的“他”字";
+    outMsgEntity.setContent(content);
+    return outMsgEntity;
   }
 
   /**
@@ -52,7 +87,7 @@ public class WechatMsgLoilangService {
     String content = String.format("目前黎话字典总共收录了%d个词条", result);
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     outMsgEntity.setContent(content);
-    outMsgEntity.setMsgType("text");
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
     return outMsgEntity;
   }
 
@@ -62,12 +97,10 @@ public class WechatMsgLoilangService {
    * @param msgCmd
    * @return
    */
-  private OutMsgEntity handleSearchWord(LoiLangMsgCmd msgCmd) {
+  private OutMsgEntity handleSearchWord(LoiLangMsgCmd msgCmd) throws InvalidParameterException {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
-      outMsgEntity.setContent("你要找哪个字啊？");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("你要找哪个字啊？");
     }
     var result = loiLangService.search(msgCmd.getArg());
     String resultMsg = IntStream.range(0, result.size())
@@ -76,7 +109,7 @@ public class WechatMsgLoilangService {
         .collect(Collectors.joining("\n"));
     String content = String.format("搜到了%d条结果：\n%s\n使用【字典看字】指令查看详情。", result.size(), resultMsg);
     outMsgEntity.setContent(content);
-    outMsgEntity.setMsgType("text");
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
     return outMsgEntity;
   }
 
@@ -86,12 +119,10 @@ public class WechatMsgLoilangService {
    * @param msgCmd
    * @return
    */
-  private OutMsgEntity handleShowWord(LoiLangMsgCmd msgCmd) {
+  private OutMsgEntity handleShowWord(LoiLangMsgCmd msgCmd) throws InvalidParameterException {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
-      outMsgEntity.setContent("你要看哪个字啊？");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("你要找哪个字啊？");
     }
     var result = loiLangService.getWord(msgCmd.getArg());
     String resultMsg = String.format("【%s】字共有%d个读音：%s。",
@@ -100,7 +131,7 @@ public class WechatMsgLoilangService {
         String.join("，", result.getPinyins())
     );
     outMsgEntity.setContent(resultMsg);
-    outMsgEntity.setMsgType("text");
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
     return outMsgEntity;
   }
 
@@ -110,30 +141,20 @@ public class WechatMsgLoilangService {
    * @param msgCmd
    * @return
    */
-  private OutMsgEntity handleAddWord(LoiLangMsgCmd msgCmd) {
+  private OutMsgEntity handleAddWord(LoiLangMsgCmd msgCmd)
+      throws InstanceAlreadyExistsException, InvalidParameterException {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
-      outMsgEntity.setContent("你要加哪个字啊？");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("你要找哪个字啊？");
     }
     if (StringUtils.isEmpty(msgCmd.getArg0())) {
-      outMsgEntity.setContent("提供一下拼音谢谢");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("提供一下拼音谢谢");
     }
-    try {
-      var result = loiLangService.create(msgCmd.getArg(), msgCmd.getArg0(), LangType.NORMAL);
-      String content = String.format("【%s】加好了。", result.getWord());
-      outMsgEntity.setContent(content);
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    } catch (InstanceAlreadyExistsException e) {
-      e.printStackTrace();
-      outMsgEntity.setContent("这个字加过啦！");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    }
+    var result = loiLangService.create(msgCmd.getArg(), msgCmd.getArg0(), LangType.NORMAL);
+    String content = String.format("【%s】加好了。", result.getWord());
+    outMsgEntity.setContent(content);
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+    return outMsgEntity;
   }
 
   /**
@@ -142,35 +163,19 @@ public class WechatMsgLoilangService {
    * @param msgCmd
    * @return
    */
-  private OutMsgEntity handleAddPinyin(LoiLangMsgCmd msgCmd) {
+  private OutMsgEntity handleAddPinyin(LoiLangMsgCmd msgCmd) throws InstanceAlreadyExistsException {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
-      outMsgEntity.setContent("你要搞哪个字啊？");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("你要找哪个字啊？");
     }
     if (StringUtils.isEmpty(msgCmd.getArg0())) {
-      outMsgEntity.setContent("提供一下拼音谢谢");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
+      throw new InvalidParameterException("提供一下拼音谢谢");
     }
-    try {
-      loiLangService.addMultiPron(msgCmd.getArg(), msgCmd.getArg0());
-      String content = String.format("【%s】的读音\"%s\"加好了。", msgCmd.getArg(), msgCmd.getArg0());
-      outMsgEntity.setContent(content);
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    } catch (InstanceAlreadyExistsException e) {
-      e.printStackTrace();
-      outMsgEntity.setContent("这个字加过啦！");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    } catch (NullPointerException e) {
-      e.printStackTrace();
-      outMsgEntity.setContent("这个字还不在字典里。");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    }
+    loiLangService.addMultiPron(msgCmd.getArg(), msgCmd.getArg0());
+    String content = String.format("【%s】的读音\"%s\"加好了。", msgCmd.getArg(), msgCmd.getArg0());
+    outMsgEntity.setContent(content);
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+    return outMsgEntity;
   }
 
   /**
@@ -183,25 +188,19 @@ public class WechatMsgLoilangService {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
       outMsgEntity.setContent("你要找哪个字啊？");
-      outMsgEntity.setMsgType("text");
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
       return outMsgEntity;
     }
     if (StringUtils.isEmpty(msgCmd.getArg0())) {
       outMsgEntity.setContent("提供一下拼音谢谢");
-      outMsgEntity.setMsgType("text");
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
       return outMsgEntity;
     }
-    try {
-      loiLangService.deletePinyin(msgCmd.getArg(), msgCmd.getArg0());
-      String content = String.format("【%s】的读音\"%s\"删掉了。", msgCmd.getArg(), msgCmd.getArg0());
-      outMsgEntity.setContent(content);
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    } catch (NullPointerException e) {
-      outMsgEntity.setContent("这条记录还不在字典里");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    }
+    loiLangService.deletePinyin(msgCmd.getArg(), msgCmd.getArg0());
+    String content = String.format("【%s】的读音\"%s\"删掉了。", msgCmd.getArg(), msgCmd.getArg0());
+    outMsgEntity.setContent(content);
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+    return outMsgEntity;
   }
 
   /**
@@ -214,19 +213,13 @@ public class WechatMsgLoilangService {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
     if (StringUtils.isEmpty(msgCmd.getArg())) {
       outMsgEntity.setContent("你要找哪个字啊？");
-      outMsgEntity.setMsgType("text");
+      outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
       return outMsgEntity;
     }
-    try {
-      loiLangService.deleteWord(msgCmd.getArg());
-      String content = String.format("【%s】字删掉了。", msgCmd.getArg());
-      outMsgEntity.setContent(content);
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    } catch (NullPointerException e) {
-      outMsgEntity.setContent("这个字还不在字典里");
-      outMsgEntity.setMsgType("text");
-      return outMsgEntity;
-    }
+    loiLangService.deleteWord(msgCmd.getArg());
+    String content = String.format("【%s】字删掉了。", msgCmd.getArg());
+    outMsgEntity.setContent(content);
+    outMsgEntity.setMsgType(Constant.MSG_TYPE_TEXT);
+    return outMsgEntity;
   }
 }
