@@ -7,29 +7,63 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "loilang")
+@Document(collection = "loilang_update")
 @Data
 @NoArgsConstructor
 public class LoiLangDocument {
 
-  public enum LangType {
-    /**
-     *
-     */
-    NORMAL,
-    SLANG,
-    ORAL
+  @Data
+  @NoArgsConstructor
+  public static class Pinyin {
+
+    @Field("t")
+    private String title;
+    @Field("rid")
+    private String rawId;
+    @Field("pys")
+    private List<String> pinyin;
+    @Field("def")
+    private String define;
+  }
+
+  @Data
+  @NoArgsConstructor
+  public static class ExampleWord {
+
+    @Field("w")
+    private String word;
+
+    @Field("pys")
+    private List<List<String>> pinyinList;
+
+    @Field("def")
+    private String define;
+
+    @Field("jpys")
+    private List<String> jointPinyinList;
+
+    private int score;
+
+    public void addScore(int s) {
+      this.setScore(this.getScore() + s);
+    }
   }
 
   @Id
   private String id;
 
-  @Field("word")
+  @Field("w")
   private String word;
 
-  @Field("pinyins")
-  private List<String> pinyins;
+  @Field("defs")
+  private List<Pinyin> pinyinList;
 
-  @Field("type")
-  private LangType type;
+  @Field("egs")
+  private List<ExampleWord> examples;
+
+  private int score;
+
+  public void addScore(int s) {
+    this.setScore(this.getScore() + s);
+  }
 }

@@ -1,18 +1,10 @@
 package com.tomoya06.loiserver.loilang.service;
 
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
-import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
 import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
-import java.security.InvalidParameterException;
-import java.util.Collections;
 import java.util.List;
-import javax.management.InstanceAlreadyExistsException;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,80 +22,11 @@ public class LoiLangService {
     return result;
   }
 
-  public List<LoiLangDocument> search(String word) {
-    return loiLangRepository.searchWord(word);
+  public List<LoiLangDocument> search(String word, Boolean isDizzy) {
+    return loiLangRepository.searchWord(word, isDizzy);
   }
 
   public LoiLangDocument getWord(String word) {
     return loiLangRepository.getWord(word);
-  }
-
-  public LoiLangDocument create(String word, String pinyin, LangType type)
-      throws InstanceAlreadyExistsException {
-    if (loiLangRepository.isWordExists(word)) {
-      throw new InstanceAlreadyExistsException();
-    }
-
-    pinyin = pinyin.toLowerCase();
-    LoiLangDocument loiLangDocument = new LoiLangDocument();
-    loiLangDocument.setWord(word);
-    loiLangDocument.setPinyins(Collections.singletonList(pinyin));
-    loiLangDocument.setType(type);
-
-    return loiLangRepository.createWord(loiLangDocument);
-  }
-
-  public UpdateResult addMultiPron(String word, String pinyin)
-      throws NullPointerException, InstanceAlreadyExistsException {
-    var wordDoc = loiLangRepository.getWord(word);
-
-    if (wordDoc == null) {
-      throw new NullPointerException();
-    }
-
-    pinyin = pinyin.toLowerCase();
-    if (wordDoc.getPinyins().contains(pinyin)) {
-      throw new InstanceAlreadyExistsException();
-    }
-
-    Update update = new Update();
-    update.addToSet("pinyins", pinyin);
-
-    return loiLangRepository.updateWord(word, update);
-  }
-
-  public String deletePinyin(String word, Integer index) {
-    if (index < 0) {
-      throw new InvalidParameterException();
-    }
-    var wordDoc = loiLangRepository.getWord(word);
-    if (wordDoc == null || wordDoc.getPinyins().size() <= index) {
-      throw new NullPointerException();
-    }
-    String oldPinyin = wordDoc.getPinyins().get(index);
-    Update update = new Update();
-    update.pull("pinyins", oldPinyin);
-    loiLangRepository.updateWord(word, update);
-    return oldPinyin;
-  }
-
-  public UpdateResult deletePinyin(String word, String oldPinyin) {
-    var wordDoc = loiLangRepository.getWord(word);
-    oldPinyin = oldPinyin.toLowerCase();
-
-    if (wordDoc == null || !wordDoc.getPinyins().contains(oldPinyin)) {
-      throw new NullPointerException();
-    }
-
-    Update update = new Update();
-    update.pull("pinyins", oldPinyin);
-    return loiLangRepository.updateWord(word, update);
-  }
-
-  public DeleteResult deleteWord(String word) {
-    if (!loiLangRepository.isWordExists(word)) {
-      throw new NullPointerException();
-    }
-    return loiLangRepository.removeWord(word);
   }
 }

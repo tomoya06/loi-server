@@ -1,11 +1,11 @@
 package com.tomoya06.loiserver.loilang.model.repo;
 
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
+import java.lang.Character.UnicodeScript;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import lombok.var;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -32,34 +31,100 @@ public class LoiLangRepository {
     return mongoTemplate.find(query, LoiLangDocument.class);
   }
 
-  public List<LoiLangDocument> searchWord(String word) {
-    Pattern pattern = Pattern.compile("^" + Pattern.quote(word), Pattern.CASE_INSENSITIVE);
-    Query query = Query.query(Criteria.where("word").regex(pattern));
+  public List<LoiLangDocument> searchWord(String word, Boolean isDizzy) {
+    List<LoiLangDocument> result;
+    if (!isDizzy) {
+      result = searchWord(word);
+    } else {
+      result = searchWordDizzily(word);
+    }
+
+    updateScores(result, word, isDizzy);
+    return result;
+  }
+
+  private List<LoiLangDocument> searchWord(String word) {
+    Query query;
+    List<LoiLangDocument> result = new ArrayList<>();
+    if (isAllChinese(word)) {
+      query = new Query(new Criteria().orOperator(
+          Criteria.where("w").is(word),
+          Criteria.where("egs.w").is(word)
+      ));
+      result = mongoTemplate.find(query, LoiLangDocument.class);
+    } else if (isAllEnglish(word)) {
+      query = new Query(new Criteria().orOperator(
+          Criteria.where("defs.pys").is(word),
+          Criteria.where("defs.jpys").is(word),
+          Criteria.where("egs.pys.jpys").is(word)
+      ));
+      result = mongoTemplate.find(query, LoiLangDocument.class);
+    }
+    return result;
+  }
+
+  private List<LoiLangDocument> searchWordDizzily(String word) {
+    Pattern pattern = Pattern.compile(".*" + Pattern.quote(word) + ".*");
+
+    Query query = new Query(new Criteria().orOperator(
+        Criteria.where("w").regex(pattern),
+        Criteria.where("egs.w").regex(pattern),
+        Criteria.where("defs.def").regex(pattern),
+        Criteria.where("egs.def").regex(pattern)
+    ));
+
     return mongoTemplate.find(query, LoiLangDocument.class);
   }
 
   public LoiLangDocument getWord(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
+    Query query = Query.query(Criteria.where("w").is(word));
     return mongoTemplate.findOne(query, LoiLangDocument.class);
   }
 
-  public boolean isWordExists(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    var doc = mongoTemplate.findOne(query, LoiLangDocument.class);
-    return doc != null;
+  private static boolean isAllChinese(String string) {
+    return string.codePoints().allMatch(
+        codepoint -> Character.UnicodeScript.of(codepoint) == UnicodeScript.HAN
+    );
   }
 
-  public LoiLangDocument createWord(LoiLangDocument document) {
-    return mongoTemplate.insert(document);
+  private static boolean isAllEnglish(String string) {
+    return Pattern.matches("^[\\w\\s]+$", string);
   }
 
-  public UpdateResult updateWord(String word, Update update) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    return mongoTemplate.updateFirst(query, update, LoiLangDocument.class);
-  }
-
-  public DeleteResult removeWord(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    return mongoTemplate.remove(query, LoiLangDocument.class);
+  private void updateScores(List<LoiLangDocument> documents, String word, Boolean isDizzy) {
+    documents.replaceAll(loiLangDocument -> {
+      if (loiLangDocument.getWord().equals(word)) {
+        loiLangDocument.addScore(90000);
+      }
+      loiLangDocument.getPinyinList().forEach(pinyin -> {
+        if (pinyin.getPinyin().contains(word)) {
+          loiLangDocument.addScore(10000);
+        }
+      });
+      if (loiLangDocument.getExamples() != null) {
+        loiLangDocument.getExamples().replaceAll(exampleWord -> {
+          if (exampleWord.getWord().contains(word)) {
+            int t = exampleWord.getWord().length() - exampleWord.getWord().replaceAll(word, "").length();
+            loiLangDocument.addScore(1000 * t);
+            exampleWord.addScore(1000 * t);
+          }
+          if (exampleWord.getJointPinyinList().contains(word)) {
+            loiLangDocument.addScore(1000);
+            exampleWord.addScore(1000);
+          }
+          return exampleWord;
+        });
+        loiLangDocument.getExamples().sort((a, b) -> b.getScore() - a.getScore());
+        if (!isDizzy) {
+          loiLangDocument.setExamples(loiLangDocument.getExamples()
+              .stream()
+              .filter(exampleWord -> exampleWord.getScore() > 0)
+              .collect(Collectors.toList())
+          );
+        }
+      }
+      return loiLangDocument;
+    });
+    documents.sort((a, b) -> b.getScore() - a.getScore());
   }
 }
