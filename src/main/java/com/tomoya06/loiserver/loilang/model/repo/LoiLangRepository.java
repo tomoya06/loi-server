@@ -1,11 +1,14 @@
 package com.tomoya06.loiserver.loilang.model.repo;
 
+import static com.tomoya06.loiserver.loilang.model.util.LoilangUtil.sortWithScores;
+
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
+import com.tomoya06.loiserver.loilang.model.DTO.SearchedDocument;
 import java.lang.Character.UnicodeScript;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,7 +34,7 @@ public class LoiLangRepository {
     return mongoTemplate.find(query, LoiLangDocument.class);
   }
 
-  public List<LoiLangDocument> searchWord(String word, Boolean isDizzy) {
+  public List<SearchedDocument> searchWord(String word, Boolean isDizzy) {
     List<LoiLangDocument> result;
     if (!isDizzy) {
       result = searchWord(word);
@@ -39,8 +42,7 @@ public class LoiLangRepository {
       result = searchWordDizzily(word);
     }
 
-    updateScores(result, word, isDizzy);
-    return result;
+    return sortWithScores(result, word);
   }
 
   private List<LoiLangDocument> searchWord(String word) {
@@ -49,7 +51,7 @@ public class LoiLangRepository {
     if (isAllChinese(word)) {
       query = new Query(new Criteria().orOperator(
           Criteria.where("w").is(word),
-          Criteria.where("egs.w").is(word)
+          Criteria.where("egs.w").regex(".*" + word + ".*")
       ));
       result = mongoTemplate.find(query, LoiLangDocument.class);
     } else if (isAllEnglish(word)) {
@@ -91,40 +93,4 @@ public class LoiLangRepository {
     return Pattern.matches("^[\\w\\s]+$", string);
   }
 
-  private void updateScores(List<LoiLangDocument> documents, String word, Boolean isDizzy) {
-    documents.replaceAll(loiLangDocument -> {
-      if (loiLangDocument.getWord().equals(word)) {
-        loiLangDocument.addScore(90000);
-      }
-      loiLangDocument.getPinyinList().forEach(pinyin -> {
-        if (pinyin.getPinyin().contains(word)) {
-          loiLangDocument.addScore(10000);
-        }
-      });
-      if (loiLangDocument.getExamples() != null) {
-        loiLangDocument.getExamples().replaceAll(exampleWord -> {
-          if (exampleWord.getWord().contains(word)) {
-            int t = exampleWord.getWord().length() - exampleWord.getWord().replaceAll(word, "").length();
-            loiLangDocument.addScore(1000 * t);
-            exampleWord.addScore(1000 * t);
-          }
-          if (exampleWord.getJointPinyinList().contains(word)) {
-            loiLangDocument.addScore(1000);
-            exampleWord.addScore(1000);
-          }
-          return exampleWord;
-        });
-        loiLangDocument.getExamples().sort((a, b) -> b.getScore() - a.getScore());
-        if (!isDizzy) {
-          loiLangDocument.setExamples(loiLangDocument.getExamples()
-              .stream()
-              .filter(exampleWord -> exampleWord.getScore() > 0)
-              .collect(Collectors.toList())
-          );
-        }
-      }
-      return loiLangDocument;
-    });
-    documents.sort((a, b) -> b.getScore() - a.getScore());
-  }
 }

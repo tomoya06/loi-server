@@ -114,7 +114,7 @@ public class WechatMsgLoilangService {
     var result = loiLangService.search(msgCmd.getArg(), false);
     String resultMsg = IntStream.range(0, result.size())
         .mapToObj(
-            i -> String.format("#%d：%s，共有%d个读音；", i + 1, result.get(i).getWord(), result.get(i).getPinyinList().size()))
+            i -> String.format("#%d：%s", i + 1, result.get(i).getWord()))
         .collect(Collectors.joining("\n"));
     String content = String.format("搜到了%d条结果：\n%s\n使用【字典看字】指令查看详情。", result.size(), resultMsg);
     outMsgEntity.setContent(content);

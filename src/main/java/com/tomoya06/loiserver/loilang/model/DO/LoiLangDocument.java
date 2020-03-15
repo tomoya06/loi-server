@@ -24,6 +24,12 @@ public class LoiLangDocument {
     private List<String> pinyin;
     @Field("def")
     private String define;
+
+    private int score;
+
+    public void addScore(int s) {
+      this.setScore(this.getScore() + s);
+    }
   }
 
   @Data

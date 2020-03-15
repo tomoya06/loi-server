@@ -1,6 +1,6 @@
 package com.tomoya06.loiserver.loilang.controller;
 
-import com.tomoya06.loiserver.loilang.model.DTO.SuccessResponse;
+import com.tomoya06.loiserver.common.model.SuccessResponse;
 import com.tomoya06.loiserver.loilang.service.LoiLangService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.tomoya06.loiserver.loilang.model.DTO;
+package com.tomoya06.loiserver.common.model;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
