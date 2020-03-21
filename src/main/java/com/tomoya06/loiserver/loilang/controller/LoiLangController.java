@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,6 +36,15 @@ public class LoiLangController {
   @GetMapping("/get")
   ResponseEntity<?> getWord(@RequestParam String word) throws NullPointerException {
     var result = loiLangService.getWord(word);
+    if (result == null) {
+      throw new NullPointerException();
+    }
+    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
+  }
+
+  @GetMapping("/id/{id}")
+  ResponseEntity<?> getWordById(@PathVariable String id) {
+    var result = loiLangService.getWordByTargetId(id);
     if (result == null) {
       throw new NullPointerException();
     }

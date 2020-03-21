@@ -83,6 +83,11 @@ public class LoiLangRepository {
     return mongoTemplate.findOne(query, LoiLangDocument.class);
   }
 
+  public LoiLangDocument getWordById(String id) {
+    Query query = Query.query(Criteria.where("_id").is(id));
+    return mongoTemplate.findOne(query, LoiLangDocument.class);
+  }
+
   private static boolean isAllChinese(String string) {
     return string.codePoints().allMatch(
         codepoint -> Character.UnicodeScript.of(codepoint) == UnicodeScript.HAN

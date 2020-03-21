@@ -30,7 +30,7 @@ public class LoilangUtil {
       if (loiLangDocument.getExamples() != null) {
         for (int i = 0; i < loiLangDocument.getExamples().size(); i += 1) {
           if (loiLangDocument.getExamples().get(i).getScore() > 0) {
-            result.add(new SearchedDocument(loiLangDocument, loiLangDocument.getExamples().get(i)));
+            result.add(new SearchedDocument(loiLangDocument, i, loiLangDocument.getExamples().get(i)));
           }
         }
       }
