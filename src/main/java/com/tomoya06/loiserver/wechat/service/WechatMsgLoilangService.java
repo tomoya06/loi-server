@@ -111,7 +111,7 @@ public class WechatMsgLoilangService {
    */
   private OutMsgEntity handleSearchWord(LoiLangMsgCmd msgCmd) throws InvalidParameterException {
     OutMsgEntity outMsgEntity = new OutMsgEntity();
-    var result = loiLangService.search(msgCmd.getArg(), false);
+    var result = loiLangService.searchWord(msgCmd.getArg(), false);
     String resultMsg = IntStream.range(0, result.size())
         .mapToObj(
             i -> String.format("#%d：%s", i + 1, result.get(i).getWord()))

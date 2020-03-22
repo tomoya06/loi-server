@@ -1,19 +1,16 @@
 package com.tomoya06.loiserver.loilang.model.repo;
 
-import static com.tomoya06.loiserver.loilang.model.util.LoilangUtil.sortWithScores;
-
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
-import com.tomoya06.loiserver.loilang.model.DTO.SearchedDocument;
-import java.lang.Character.UnicodeScript;
-import java.util.ArrayList;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangSearchExampleProjection;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangSearchWordProjection;
 import java.util.List;
-import java.util.regex.Pattern;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -23,6 +20,8 @@ public class LoiLangRepository {
 
   @Autowired
   private MongoTemplate mongoTemplate;
+
+  private static final String COLL_NAME = "loilang_update";
 
   public Long totalCount() {
     Query query = Query.query(Criteria.where("id").exists(true));
@@ -34,48 +33,26 @@ public class LoiLangRepository {
     return mongoTemplate.find(query, LoiLangDocument.class);
   }
 
-  public List<SearchedDocument> searchWord(String word, Boolean isDizzy) {
-    List<LoiLangDocument> result;
-    if (!isDizzy) {
-      result = searchWord(word);
-    } else {
-      result = searchWordDizzily(word);
-    }
-
-    return sortWithScores(result, word);
+  public List<LoiLangSearchWordProjection> searchCharacter(String word) {
+    Aggregation aggregation = Aggregation.newAggregation(
+        Aggregation.match(Criteria.where("w").is(word)),
+        Aggregation.project("w", "defs")
+    );
+    var results = mongoTemplate.aggregate(aggregation, COLL_NAME, LoiLangSearchWordProjection.class);
+    return results.getMappedResults();
   }
 
-  private List<LoiLangDocument> searchWord(String word) {
-    Query query;
-    List<LoiLangDocument> result = new ArrayList<>();
-    if (isAllChinese(word)) {
-      query = new Query(new Criteria().orOperator(
-          Criteria.where("w").is(word),
-          Criteria.where("egs.w").regex(".*" + word + ".*")
-      ));
-      result = mongoTemplate.find(query, LoiLangDocument.class);
-    } else if (isAllEnglish(word)) {
-      query = new Query(new Criteria().orOperator(
-          Criteria.where("defs.pys").is(word),
-          Criteria.where("defs.jpys").is(word),
-          Criteria.where("egs.pys.jpys").is(word)
-      ));
-      result = mongoTemplate.find(query, LoiLangDocument.class);
-    }
-    return result;
-  }
+  public List<LoiLangSearchExampleProjection> searchExampleWord(String word) {
+    String wordRegex = String.format(".*%s.*", word);
 
-  private List<LoiLangDocument> searchWordDizzily(String word) {
-    Pattern pattern = Pattern.compile(".*" + Pattern.quote(word) + ".*");
+    Aggregation aggregation = Aggregation.newAggregation(
+        Aggregation.unwind("egs"),
+        Aggregation.match(Criteria.where("egs.w").regex(wordRegex)),
+        Aggregation.project("egs", "w")
+    );
 
-    Query query = new Query(new Criteria().orOperator(
-        Criteria.where("w").regex(pattern),
-        Criteria.where("egs.w").regex(pattern),
-        Criteria.where("defs.def").regex(pattern),
-        Criteria.where("egs.def").regex(pattern)
-    ));
-
-    return mongoTemplate.find(query, LoiLangDocument.class);
+    var results = mongoTemplate.aggregate(aggregation, COLL_NAME, LoiLangSearchExampleProjection.class);
+    return results.getMappedResults();
   }
 
   public LoiLangDocument getWord(String word) {
@@ -87,15 +64,4 @@ public class LoiLangRepository {
     Query query = Query.query(Criteria.where("_id").is(id));
     return mongoTemplate.findOne(query, LoiLangDocument.class);
   }
-
-  private static boolean isAllChinese(String string) {
-    return string.codePoints().allMatch(
-        codepoint -> Character.UnicodeScript.of(codepoint) == UnicodeScript.HAN
-    );
-  }
-
-  private static boolean isAllEnglish(String string) {
-    return Pattern.matches("^[\\w\\s]+$", string);
-  }
-
 }

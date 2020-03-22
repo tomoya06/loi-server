@@ -24,6 +24,8 @@ public class LoiLangDocument {
     private List<String> pinyin;
     @Field("def")
     private String define;
+    @Field("nid")
+    private int nid;
 
     private int score;
 
@@ -38,13 +40,12 @@ public class LoiLangDocument {
 
     @Field("w")
     private String word;
-
+    @Field("nid")
+    private int nid;
     @Field("pys")
     private List<List<String>> pinyinList;
-
     @Field("def")
     private String define;
-
     @Field("jpys")
     private List<String> jointPinyinList;
 

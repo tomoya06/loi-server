@@ -29,7 +29,7 @@ public class LoiLangController {
   ResponseEntity<?> search(
       @RequestParam String query,
       @RequestParam(defaultValue = "false") Boolean dizzy) {
-    var result = loiLangService.search(query, dizzy);
+    var result = loiLangService.searchWord(query, dizzy);
     return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
   }
 

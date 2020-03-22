@@ -14,6 +14,7 @@ public class LoiLangDocument {
   @NoArgsConstructor
   public static class Pinyin {
 
+    private int nid;
     private String title;
     private String rawId;
     private List<String> pinyin;
@@ -24,6 +25,7 @@ public class LoiLangDocument {
   @NoArgsConstructor
   public static class ExampleWord {
 
+    private int nid;
     private String word;
     private List<List<String>> pinyinList;
     private String define;
