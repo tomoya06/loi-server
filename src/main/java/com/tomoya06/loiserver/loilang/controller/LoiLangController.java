@@ -1,7 +1,9 @@
 package com.tomoya06.loiserver.loilang.controller;
 
 import com.tomoya06.loiserver.common.model.SuccessResponse;
+import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.service.LoiLangService;
+import com.tomoya06.loiserver.loilang.service.LoiLangSubService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,11 +21,8 @@ public class LoiLangController {
   @Autowired
   private LoiLangService loiLangService;
 
-  @GetMapping("/general")
-  ResponseEntity<?> general() {
-    var result = loiLangService.getGeneral();
-    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
-  }
+  @Autowired
+  private LoiLangSubService loiLangSubService;
 
   @GetMapping("/search")
   ResponseEntity<?> search(
@@ -48,6 +47,22 @@ public class LoiLangController {
     if (result == null) {
       throw new NullPointerException();
     }
+    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
+  }
+
+  @GetMapping("/rec")
+  ResponseEntity<?> getRecommend() {
+    var result = loiLangSubService.getRecommend();
+    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
+  }
+
+  @GetMapping("/general")
+  ResponseEntity<?> getGeneral() {
+    var totalWord = loiLangSubService.getTotalWord();
+    var totalExample = loiLangSubService.getTotalExample();
+    LoiLangGeneralResult result = new LoiLangGeneralResult();
+    result.setTotalWord(totalWord);
+    result.setTotalExample(totalExample);
     return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
   }
 }

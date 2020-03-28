@@ -19,13 +19,6 @@ public class LoiLangService {
   @Autowired
   private LoiLangRepository loiLangRepository;
 
-  public LoiLangGeneralResult getGeneral() {
-    LoiLangGeneralResult result = new LoiLangGeneralResult();
-    Long total = loiLangRepository.totalCount();
-    result.setTotal(total);
-    return result;
-  }
-
   public List<SearchedDocument> searchWord(String word, Boolean isSearchExample) {
     List<SearchedDocument> result = new ArrayList<>();
     if (CommonUtil.isAllChinese(word)) {

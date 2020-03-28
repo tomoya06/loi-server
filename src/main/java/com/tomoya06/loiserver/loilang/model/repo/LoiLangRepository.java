@@ -23,16 +23,6 @@ public class LoiLangRepository {
 
   private static final String COLL_NAME = "loilang_update";
 
-  public Long totalCount() {
-    Query query = Query.query(Criteria.where("id").exists(true));
-    return mongoTemplate.count(query, LoiLangDocument.class);
-  }
-
-  public List<LoiLangDocument> getLatest(Integer size) {
-    Query query = new Query().with(PageRequest.of(0, size)).with(Sort.by(Direction.DESC, "_id"));
-    return mongoTemplate.find(query, LoiLangDocument.class);
-  }
-
   public List<LoiLangSearchWordProjection> searchCharacter(String word) {
     Aggregation aggregation = Aggregation.newAggregation(
         Aggregation.match(Criteria.where("w").is(word)),

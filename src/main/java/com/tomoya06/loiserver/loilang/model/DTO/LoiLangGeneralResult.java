@@ -1,6 +1,5 @@
 package com.tomoya06.loiserver.loilang.model.DTO;
 
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoiLangGeneralResult {
 
-  private Long total;
-  private List<LoiLangDocument> latest;
+  private Long totalWord;
+  private Long totalExample;
 }
