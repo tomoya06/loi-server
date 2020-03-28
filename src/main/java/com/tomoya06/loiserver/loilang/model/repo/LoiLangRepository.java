@@ -1,19 +1,18 @@
 package com.tomoya06.loiserver.loilang.model.repo;
 
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangSearchExampleProjection;
+import com.tomoya06.loiserver.loilang.model.DO.LoiLangSearchWordProjection;
 import java.util.List;
-import java.util.regex.Pattern;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -22,44 +21,37 @@ public class LoiLangRepository {
   @Autowired
   private MongoTemplate mongoTemplate;
 
-  public Long totalCount() {
-    Query query = Query.query(Criteria.where("id").exists(true));
-    return mongoTemplate.count(query, LoiLangDocument.class);
+  private static final String COLL_NAME = "loilang_update";
+
+  public List<LoiLangSearchWordProjection> searchCharacter(String word) {
+    Aggregation aggregation = Aggregation.newAggregation(
+        Aggregation.match(Criteria.where("w").is(word)),
+        Aggregation.project("w", "defs")
+    );
+    var results = mongoTemplate.aggregate(aggregation, COLL_NAME, LoiLangSearchWordProjection.class);
+    return results.getMappedResults();
   }
 
-  public List<LoiLangDocument> getLatest(Integer size) {
-    Query query = new Query().with(PageRequest.of(0, size)).with(Sort.by(Direction.DESC, "_id"));
-    return mongoTemplate.find(query, LoiLangDocument.class);
-  }
+  public List<LoiLangSearchExampleProjection> searchExampleWord(String word) {
+    String wordRegex = String.format(".*%s.*", word);
 
-  public List<LoiLangDocument> searchWord(String word) {
-    Pattern pattern = Pattern.compile("^" + Pattern.quote(word), Pattern.CASE_INSENSITIVE);
-    Query query = Query.query(Criteria.where("word").regex(pattern));
-    return mongoTemplate.find(query, LoiLangDocument.class);
+    Aggregation aggregation = Aggregation.newAggregation(
+        Aggregation.unwind("egs"),
+        Aggregation.match(Criteria.where("egs.w").regex(wordRegex)),
+        Aggregation.project("egs", "w")
+    );
+
+    var results = mongoTemplate.aggregate(aggregation, COLL_NAME, LoiLangSearchExampleProjection.class);
+    return results.getMappedResults();
   }
 
   public LoiLangDocument getWord(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
+    Query query = Query.query(Criteria.where("w").is(word));
     return mongoTemplate.findOne(query, LoiLangDocument.class);
   }
 
-  public boolean isWordExists(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    var doc = mongoTemplate.findOne(query, LoiLangDocument.class);
-    return doc != null;
-  }
-
-  public LoiLangDocument createWord(LoiLangDocument document) {
-    return mongoTemplate.insert(document);
-  }
-
-  public UpdateResult updateWord(String word, Update update) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    return mongoTemplate.updateFirst(query, update, LoiLangDocument.class);
-  }
-
-  public DeleteResult removeWord(String word) {
-    Query query = Query.query(Criteria.where("word").is(word));
-    return mongoTemplate.remove(query, LoiLangDocument.class);
+  public LoiLangDocument getWordById(String id) {
+    Query query = Query.query(Criteria.where("_id").is(id));
+    return mongoTemplate.findOne(query, LoiLangDocument.class);
   }
 }

@@ -1,18 +1,16 @@
 package com.tomoya06.loiserver.loilang.service;
 
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
-import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument;
-import com.tomoya06.loiserver.loilang.model.DO.LoiLangDocument.LangType;
-import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
+import com.tomoya06.loiserver.loilang.model.DTO.LoiLangDocument;
+import com.tomoya06.loiserver.loilang.model.DTO.SearchedDocument;
 import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
-import java.security.InvalidParameterException;
-import java.util.Collections;
+import com.tomoya06.loiserver.loilang.model.util.CommonUtil;
+import com.tomoya06.loiserver.loilang.model.util.LoilangUtil;
+import java.util.ArrayList;
 import java.util.List;
-import javax.management.InstanceAlreadyExistsException;
+import java.util.stream.Collectors;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,89 +19,29 @@ public class LoiLangService {
   @Autowired
   private LoiLangRepository loiLangRepository;
 
-  public LoiLangGeneralResult getGeneral() {
-    LoiLangGeneralResult result = new LoiLangGeneralResult();
-    Long total = loiLangRepository.totalCount();
-    List<LoiLangDocument> list = loiLangRepository.getLatest(10);
-    result.setLatest(list);
-    result.setTotal(total);
+  @Cacheable("loilang:search")
+  public List<SearchedDocument> searchWord(String word, Boolean isSearchExample) {
+    List<SearchedDocument> result = new ArrayList<>();
+    if (CommonUtil.isAllChinese(word)) {
+      if (word.length() == LoilangUtil.CN_CHAR.length() && !isSearchExample) {
+        var searchResult = loiLangRepository.searchCharacter(word);
+        result = searchResult.stream()
+            .map(SearchedDocument::new)
+            .collect(Collectors.toList());
+      } else {
+        var searchResult = loiLangRepository.searchExampleWord(word);
+        result = searchResult.stream()
+            .map(SearchedDocument::new)
+            .collect(Collectors.toList());
+      }
+    }
     return result;
   }
 
-  public List<LoiLangDocument> search(String word) {
-    return loiLangRepository.searchWord(word);
-  }
-
-  public LoiLangDocument getWord(String word) {
-    return loiLangRepository.getWord(word);
-  }
-
-  public LoiLangDocument create(String word, String pinyin, LangType type)
-      throws InstanceAlreadyExistsException {
-    if (loiLangRepository.isWordExists(word)) {
-      throw new InstanceAlreadyExistsException();
-    }
-
-    pinyin = pinyin.toLowerCase();
-    LoiLangDocument loiLangDocument = new LoiLangDocument();
-    loiLangDocument.setWord(word);
-    loiLangDocument.setPinyins(Collections.singletonList(pinyin));
-    loiLangDocument.setType(type);
-
-    return loiLangRepository.createWord(loiLangDocument);
-  }
-
-  public UpdateResult addMultiPron(String word, String pinyin)
-      throws NullPointerException, InstanceAlreadyExistsException {
-    var wordDoc = loiLangRepository.getWord(word);
-
-    if (wordDoc == null) {
-      throw new NullPointerException();
-    }
-
-    pinyin = pinyin.toLowerCase();
-    if (wordDoc.getPinyins().contains(pinyin)) {
-      throw new InstanceAlreadyExistsException();
-    }
-
-    Update update = new Update();
-    update.addToSet("pinyins", pinyin);
-
-    return loiLangRepository.updateWord(word, update);
-  }
-
-  public String deletePinyin(String word, Integer index) {
-    if (index < 0) {
-      throw new InvalidParameterException();
-    }
-    var wordDoc = loiLangRepository.getWord(word);
-    if (wordDoc == null || wordDoc.getPinyins().size() <= index) {
-      throw new NullPointerException();
-    }
-    String oldPinyin = wordDoc.getPinyins().get(index);
-    Update update = new Update();
-    update.pull("pinyins", oldPinyin);
-    loiLangRepository.updateWord(word, update);
-    return oldPinyin;
-  }
-
-  public UpdateResult deletePinyin(String word, String oldPinyin) {
-    var wordDoc = loiLangRepository.getWord(word);
-    oldPinyin = oldPinyin.toLowerCase();
-
-    if (wordDoc == null || !wordDoc.getPinyins().contains(oldPinyin)) {
-      throw new NullPointerException();
-    }
-
-    Update update = new Update();
-    update.pull("pinyins", oldPinyin);
-    return loiLangRepository.updateWord(word, update);
-  }
-
-  public DeleteResult deleteWord(String word) {
-    if (!loiLangRepository.isWordExists(word)) {
-      throw new NullPointerException();
-    }
-    return loiLangRepository.removeWord(word);
+  @Cacheable("loilang:targetId")
+  public LoiLangDocument getWordByTargetId(String targetId) {
+    String id = targetId.substring(0, 24);
+    var mainDoc = loiLangRepository.getWordById(id);
+    return new LoiLangDocument(mainDoc);
   }
 }

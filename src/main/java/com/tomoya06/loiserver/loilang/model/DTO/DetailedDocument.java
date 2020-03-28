@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class LoiLangGeneralResult {
+public class DetailedDocument {
 
-  private Long totalWord;
-  private Long totalExample;
+  private LoiLangDocument main;
+  private SearchedDocument highlight;
 }
