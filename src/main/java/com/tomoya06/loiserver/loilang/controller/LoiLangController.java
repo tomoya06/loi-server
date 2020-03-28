@@ -1,7 +1,6 @@
 package com.tomoya06.loiserver.loilang.controller;
 
 import com.tomoya06.loiserver.common.model.SuccessResponse;
-import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.service.LoiLangService;
 import com.tomoya06.loiserver.loilang.service.LoiLangSubService;
 import lombok.var;
@@ -25,24 +24,15 @@ public class LoiLangController {
   private LoiLangSubService loiLangSubService;
 
   @GetMapping("/search")
-  ResponseEntity<?> search(
+  public ResponseEntity<?> search(
       @RequestParam String query,
       @RequestParam(defaultValue = "false") Boolean dizzy) {
     var result = loiLangService.searchWord(query, dizzy);
     return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
   }
 
-  @GetMapping("/get")
-  ResponseEntity<?> getWord(@RequestParam String word) throws NullPointerException {
-    var result = loiLangService.getWord(word);
-    if (result == null) {
-      throw new NullPointerException();
-    }
-    return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
-  }
-
   @GetMapping("/id/{id}")
-  ResponseEntity<?> getWordById(@PathVariable String id) {
+  public ResponseEntity<?> getWordById(@PathVariable String id) {
     var result = loiLangService.getWordByTargetId(id);
     if (result == null) {
       throw new NullPointerException();
@@ -51,18 +41,14 @@ public class LoiLangController {
   }
 
   @GetMapping("/rec")
-  ResponseEntity<?> getRecommend() {
+  public ResponseEntity<?> getRecommend() {
     var result = loiLangSubService.getRecommend();
     return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
   }
 
   @GetMapping("/general")
-  ResponseEntity<?> getGeneral() {
-    var totalWord = loiLangSubService.getTotalWord();
-    var totalExample = loiLangSubService.getTotalExample();
-    LoiLangGeneralResult result = new LoiLangGeneralResult();
-    result.setTotalWord(totalWord);
-    result.setTotalExample(totalExample);
+  public ResponseEntity<?> getGeneral() {
+    var result = loiLangSubService.getGeneral();
     return new ResponseEntity<>(new SuccessResponse(result), HttpStatus.OK);
   }
 }

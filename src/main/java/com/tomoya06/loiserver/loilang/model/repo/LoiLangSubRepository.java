@@ -21,7 +21,6 @@ public class LoiLangSubRepository {
 
   private static final String COLL_NAME = "loilang_update";
 
-
   public List<LoiLangRecommendDocument> getRecommend() {
     return mongoTemplate.findAll(LoiLangRecommendDocument.class);
   }

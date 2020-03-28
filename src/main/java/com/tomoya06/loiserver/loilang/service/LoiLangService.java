@@ -1,7 +1,6 @@
 package com.tomoya06.loiserver.loilang.service;
 
 import com.tomoya06.loiserver.loilang.model.DTO.LoiLangDocument;
-import com.tomoya06.loiserver.loilang.model.DTO.LoiLangGeneralResult;
 import com.tomoya06.loiserver.loilang.model.DTO.SearchedDocument;
 import com.tomoya06.loiserver.loilang.model.repo.LoiLangRepository;
 import com.tomoya06.loiserver.loilang.model.util.CommonUtil;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +19,7 @@ public class LoiLangService {
   @Autowired
   private LoiLangRepository loiLangRepository;
 
+  @Cacheable("loilang:search")
   public List<SearchedDocument> searchWord(String word, Boolean isSearchExample) {
     List<SearchedDocument> result = new ArrayList<>();
     if (CommonUtil.isAllChinese(word)) {
@@ -37,11 +38,7 @@ public class LoiLangService {
     return result;
   }
 
-  public LoiLangDocument getWord(String word) {
-    var result = loiLangRepository.getWord(word);
-    return new LoiLangDocument(result);
-  }
-
+  @Cacheable("loilang:targetId")
   public LoiLangDocument getWordByTargetId(String targetId) {
     String id = targetId.substring(0, 24);
     var mainDoc = loiLangRepository.getWordById(id);

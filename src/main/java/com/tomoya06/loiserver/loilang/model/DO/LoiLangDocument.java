@@ -26,12 +26,6 @@ public class LoiLangDocument {
     private String define;
     @Field("nid")
     private int nid;
-
-    private int score;
-
-    public void addScore(int s) {
-      this.setScore(this.getScore() + s);
-    }
   }
 
   @Data
@@ -48,12 +42,6 @@ public class LoiLangDocument {
     private String define;
     @Field("jpys")
     private List<String> jointPinyinList;
-
-    private int score;
-
-    public void addScore(int s) {
-      this.setScore(this.getScore() + s);
-    }
   }
 
   @Id
@@ -67,10 +55,4 @@ public class LoiLangDocument {
 
   @Field("egs")
   private List<ExampleWord> examples;
-
-  private int score;
-
-  public void addScore(int s) {
-    this.setScore(this.getScore() + s);
-  }
 }
